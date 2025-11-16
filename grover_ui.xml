@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Grover's 2-Qubit Search Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h2>Grover's 2-Qubit Search</h2>
+<div>
+  <button onclick="setIndex(0)">Item 0</button>
+  <button onclick="setIndex(1)">Item 1</button>
+  <button onclick="setIndex(2)">Item 2</button>
+  <button onclick="setIndex(3)">Item 3</button>
+  <button onclick="runGrover()">Run Search</button>
+</div>
+<canvas id="chart" width="300" height="200"></canvas>
+
+<script>
+let markedIndex = 0;
+function setIndex(idx){ markedIndex = idx; }
+
+function runGrover(){
+  fetch('/grover', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({marked_index: markedIndex})
+  })
+  .then(response => response.json())
+  .then(data => {
+    const ctx = document.getElementById('chart').getContext('2d');
+    const results = data.results;
+    const labels = Object.keys(results);
+    const values = labels.map(k => results[k]);
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Probability',
+          data: values,
+          backgroundColor: ['#999','#999','#999','#4caf50']
+        }]
+      },
+      options: {scales: {y: {beginAtZero: true, max: 1}}}
+    });
+  });
+}
+</script>
+</body>
+</html>
